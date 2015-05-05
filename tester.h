@@ -19,6 +19,7 @@ public:
 	int getNumber();
 	void numberPlus();
 	void numberMinus();
+	int addNumberElements(int i){number += i; return number;}
 };
 
 class ULLNode {
@@ -27,7 +28,6 @@ private:
 	ULLNode *next;
 public:
 	ULLNode();
-	//~ULLNode();
 	ULLNode(int);
 	ULLNode* getNext();
 	int getData();
@@ -73,6 +73,13 @@ public:
  	void SetPtr2MS(MultiSet* ptr) {ptr2ms = ptr;}
  	MultiSet* GetPtr2MS() {return ptr2ms;}
  	void numberPlus() {number++;}
+ 	void numberMinus() {number--;}
+ 	void addNumberMultiSets(int i) {number + i;}
+ 	int getNumberMultiSets(){return number;}
+ 	bool containsMultiSet(){
+  		if (ptr2ms == NULL) return false;
+  		else return true;
+	}
 };
 
 class TrieNode:  public BasicTrieNode{
@@ -111,9 +118,13 @@ public:
   	void CountN();
   	bool Member(string x);
   	void Delete(string x);
+  	void DeleteAll(string x);
+  	void deleteRec(string x);
+  	void deleteAllRec(string x);
     bool CheckTrie(int*);
     BasicTrieNode* pointerToWord(string x); 
-    void printAllElements(string x);                                         //*****
+    void printAllElements(string x);
+    bool containsMultiset(BasicTrieNode *);                               
 };
 
 

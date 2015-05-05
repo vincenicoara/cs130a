@@ -76,11 +76,15 @@ void Trie::Create(string x) {
       // to
       
       else if (current->GetPtr(j) != 0 && x[i+1] == '\0'){
-        if (current->GetPtr2MS() == 0){
+        if (current->GetPtr2MS() == 0){\
           current = current->GetPtr(j);
-          current->SetPtr2MS(new ULL());
+          MultiSet *p = current->GetPtr2MS();
+          MultiSet *p2 = new ULL();
+          p2->setptr2prev(p);
+          current->SetPtr2MS(p2);
         }
         else {
+          current = current->GetPtr(j);
           MultiSet *p = current->GetPtr2MS();
           MultiSet *p2 = new ULL();
           p2->setptr2prev(p);
@@ -96,6 +100,12 @@ void Trie::Merge(string s, string t){
   BasicTrieNode *tBTN = pointerToWord(t);
   ULL *sULL = (ULL *) sBTN->GetPtr2MS();
   ULL *tULL = (ULL *) tBTN->GetPtr2MS();
+
+  int tNum = tULL->getNumber();
+  sULL->addNumberElements(tNum);
+
+  
+
   MultiSet *tpointertoprev = tBTN->GetPtr2MS()->getptr2prev();
 
   sULL->append(tULL->getFirst());
@@ -113,7 +123,6 @@ void Trie::Insert(string x, int i){
     ULL *p = (ULL *) current->GetPtr2MS();
     p->insert(i);
     p->numberPlus();
-    cout << p->getNumber() << endl;
 }
 
 void Trie::DeleteElem(string x, int i){
@@ -186,51 +195,71 @@ int Trie::CountN(BasicTrieNode *current){
 }
 
 void Trie::Delete(string x){
-  
   if (!Member(x)) return;
-  bool tnEmpty = true;
-  BasicTrieNode *current = pointerToWord(x);
-  if (current->GetPtr2MS()->getptr2prev() == 0){
-    ULL *toDelete = (ULL *) current->GetPtr2MS();
-    toDelete->deleteAll();
-    for (int i = 0; i < StrMaxElem; i++){           //checking if word is prefix
-      if (current->GetPtr(i) != NULL) tnEmpty = false;
-    }
 
+  BasicTrieNode* p = pointerToWord(x);
+  if (p->containsMultiSet()){
+    MultiSet *toDelete = p->GetPtr2MS();
+    MultiSet *newMS = toDelete->getptr2prev();
+    p->SetPtr2MS(newMS);
+    delete toDelete;
+    p->numberMinus();
+    return;
+  }
+  else {
+    deleteRec(x);
   }
 
 }
 
-//int Trie::findLevel(string)
+void Trie::deleteRec(string x){
+  if (!Member(x)) return;
 
-/*
-void Trie::Delete(char x[])
-{
-  //TrieNode *current = root;
-  //int i = 0;
-  //if (x[i] == '\0') return;
-  //bool j = Delete(x,i,current);
+  BasicTrieNode *p = pointerToWord(x);
+  if(p->containsMultiSet()) return;
+  else{
+    delete p;
+    deleteRec(x.substr(0,x.size()-1));
+  }
 }
 
-bool Trie::Delete(char x[], int i, TrieNode *current){
-  
-  if (current != 0)
-    {if (x[i] == '\0')
-       {current -> UnSetStrEnds();
-    if (CheckTrieNodeEmpty(current))
-      {delete current; return true;} }
-      else {
-        if (Delete(x,i+1,current->GetPtr(x[i] - 'a'))){
-          current->SetPtr(x[i] - 'a', 0);
-             if (i != 0 && CheckTrieNodeEmpty(current))
-               {delete current; return true;} 
-           }
-      }
+void Trie::DeleteAll(string x){
+  if (!Member(x)) return;
+
+  MultiSet *toDelete;
+  MultiSet *newMS;
+  BasicTrieNode *p = pointerToWord(x);
+
+  if (p->containsMultiSet()){
+    while (p->GetPtr2MS() != NULL){
+      toDelete = p->GetPtr2MS();
+      newMS = toDelete->getptr2prev();
+      p->SetPtr2MS(newMS);
+      delete toDelete;
+      p->numberMinus();
     }
-    
-  return false;
+  }
+  else{
+    deleteAllRec(x);
+  }
 }
-*/
+
+void Trie::deleteAllRec(string x){
+  if (!Member(x)) return;
+
+  BasicTrieNode *p = pointerToWord(x);
+  if (p->containsMultiSet()) {
+    //if (p->WhoAmI() == 1){
+    //BasicTrieNode * newBTN = new BasicTrieNode();
+    //  newBTN
+    return;
+    }
+  else{
+    delete p;
+    deleteRec(x.substr(0, x.size()-1));
+  }
+}
+
 
 bool Trie::CheckTrieNodeEmpty(TrieNode *current)
 {
